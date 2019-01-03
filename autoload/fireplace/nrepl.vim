@@ -200,9 +200,16 @@ endfunction
 function! s:extract_last_stacktrace(nrepl, session) abort
   if a:nrepl.has_op('stacktrace')
     let stacktrace = a:nrepl.message({'op': 'stacktrace', 'session': a:session})
-    if len(stacktrace) > 0 && has_key(stacktrace[0], 'stacktrace')
-      let stacktrace = stacktrace[0].stacktrace
-    endif
+    let temp_stacktrace = []
+    for st in stacktrace
+      if has_key(st, 'stacktrace')
+        let temp_stacktrace = st.stacktrace + temp_stacktrace
+      endif
+    endfor
+    let stacktrace = temp_stacktrace
+    " if len(stacktrace) > 0 && has_key(stacktrace[0], 'stacktrace')
+    "   let stacktrace = stacktrace[0].stacktrace
+    " endif
 
     call map(stacktrace, 's:process_stacktrace_entry(v:val)')
     call filter(stacktrace, '!empty(v:val)')
